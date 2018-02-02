@@ -185,10 +185,10 @@ STATIC FUNCTION HarbValueToSQL( Value )
 
    SWITCH ValType( Value )
    CASE "N" ; RETURN hb_ntos( Value )
-   CASE "D" ; RETURN iif( Empty( Value ), "''", "'" + hb_DToC( Value, "yyyy-mm-dd" ) + "'" )
-   CASE "T" ; RETURN iif( Empty( Value ), "''", "'" + hb_TToC( Value, "yyyy-mm-dd", "hh:mm:ss" ) + "'" )
+   CASE "D" ; RETURN iif( Empty( Value ), "null", "'" + hb_DToC( Value, "yyyy-mm-dd" ) + "'" )
+   CASE "T" ; RETURN iif( Empty( Value ), "null", "'" + hb_TToC( Value, "yyyy-mm-dd", "hh:mm:ss" ) + "'" )
       // CASE "C" ; RETURN iif( Empty( Value ), "''", "'" + mysql_escape_string(hb_translate( Value, cdp_dbf, cdp_sql  )) + "'" )
-   CASE "C" ; RETURN iif( Empty( Value ), "''", "'" + mysql_escape_string( Value ) + "'" )
+   CASE "C" ; RETURN iif( Empty( Value ), "null", "'" + mysql_escape_string( Value ) + "'" )
    CASE "M"
    CASE "W" ; RETURN iif( Empty( Value ), "''", "'" + mysql_escape_string( value ) + "'" )
    CASE "L" ; RETURN iif( Value, "1", "0" )
