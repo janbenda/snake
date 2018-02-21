@@ -87,3 +87,9 @@ mysqlimport --fields-optionally-enclosed-by=\" --ignore-lines=1 --fields-termina
 #NAZCOBCE,PSC,NAZPOST,KODOKRESU,NAZOKRESU,NAZOBCE
 #Abertamy,36235,Abertamy,3403,"Karlovy Vary",Abertamy
 
+#a takhle dostanu kraj a okres 
+#select psc.psc,okres.nazev okres,vusc.nazev kraj
+#from zv_pcobc psc 
+#left join UI_OKRES okres on okres.kod=psc.kodokresu
+#left join UI_VUSC vusc on vusc.kod=okres.vusc_kod
+#where psc = '56301'
