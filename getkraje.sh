@@ -2,6 +2,8 @@ function createdbs {
 
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists UI_VUSC"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists UI_OKRES"
+  mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists ui_vusc"
+  mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists ui_okres"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists zv_pcobc"
 
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "create table UI_OKRES ( \
@@ -43,6 +45,11 @@ DB=temptables
 SERVER=192.168.2.4
 USER=jan
 PASS=1qw
+#wic
+DB=snake
+SERVER=192.168.1.10
+USER=root
+PASS=Honda621
 
 createdbs
 
@@ -54,6 +61,8 @@ do
   unzip $ZIPF  
   rm -f $ZIPF
   mysqlimport --ignore-lines=1 --fields-terminated-by=\; -h$SERVER -u$USER -p$PASS ${DB} --local ${ZIPF%%.*}.csv
+  TABLE=${ZIPF%%.*}
+  mysql -h$SERVER -u$USER -p$PASS ${DB} -e "rename table ${TABLE} to ${TABLE,,}"
 done
 
 
@@ -66,8 +75,9 @@ FEXT=zv_pcobc.xls
 rm -f ${FEXT}
 unzip $ZIPF  
 rm -f ${FEXT%%.*}.csv
-#po instalaci gnumeric
-ssconvert $FEXT ${FEXT%%.*}.csv
+#po instalaci gnumeric, kde neni gnome to nejde, ale libreoffice to umi taky
+libreoffice --infilter=CSV:44,34,76,1 --headless --convert-to csv $FEXT
+#ssconvert $FEXT ${FEXT%%.*}.csv
 iconv -f utf8 -t cp1250 ${FEXT%%.*}.csv > ${FEXT%%.*}.csv.cp1250
 mv ${FEXT%%.*}.csv.cp1250 ${FEXT%%.*}.csv
 rm -f $ZIPF
