@@ -61,7 +61,7 @@ do
   rm -f ${ZIPF%%.*}.csv
   unzip $ZIPF  
   rm -f $ZIPF
-  iconv -f utf8 -t ${SQLCHARSET} ${ZIPF%%.*}.csv > ${ZIPF%%.*}.csv.conv
+  iconv -f WINDOWS-1250 -t ${SQLCHARSET} ${ZIPF%%.*}.csv > ${ZIPF%%.*}.csv.conv
   mv ${ZIPF%%.*}.csv.conv ${ZIPF%%.*}.csv
   mysqlimport --ignore-lines=1 --fields-terminated-by=\; -h$SERVER -u$USER -p$PASS ${DB} --local ${ZIPF%%.*}.csv
   TABLE=${ZIPF%%.*}
