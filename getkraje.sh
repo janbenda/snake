@@ -50,6 +50,7 @@ DB=snake
 SERVER=192.168.1.10
 USER=root
 PASS=Honda621
+SQLCHARSET=latin2
 
 createdbs
 
@@ -60,6 +61,8 @@ do
   rm -f ${ZIPF%%.*}.csv
   unzip $ZIPF  
   rm -f $ZIPF
+  iconv -f utf8 -t ${SQLCHARSET} ${ZIPF%%.*}.csv > ${ZIPF%%.*}.csv.conv
+  mv ${ZIPF%%.*}.csv.conv ${ZIPF%%.*}.csv
   mysqlimport --ignore-lines=1 --fields-terminated-by=\; -h$SERVER -u$USER -p$PASS ${DB} --local ${ZIPF%%.*}.csv
   TABLE=${ZIPF%%.*}
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "rename table ${TABLE} to ${TABLE,,}"
@@ -78,8 +81,8 @@ rm -f ${FEXT%%.*}.csv
 #po instalaci gnumeric, kde neni gnome to nejde, ale libreoffice to umi taky
 libreoffice --infilter=CSV:44,34,76,1 --headless --convert-to csv $FEXT
 #ssconvert $FEXT ${FEXT%%.*}.csv
-iconv -f utf8 -t latin2 ${FEXT%%.*}.csv > ${FEXT%%.*}.csv.cp1250
-mv ${FEXT%%.*}.csv.cp1250 ${FEXT%%.*}.csv
+iconv -f utf8 -t ${SQLCHARSET} ${FEXT%%.*}.csv > ${FEXT%%.*}.csv.conv
+mv ${FEXT%%.*}.csv.conv ${FEXT%%.*}.csv
 rm -f $ZIPF
 
 mysqlimport --fields-optionally-enclosed-by=\" --ignore-lines=1 --fields-terminated-by=, -h$SERVER -u$USER -p$PASS ${DB} --local ${FEXT%%.*}.csv
