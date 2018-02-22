@@ -78,7 +78,7 @@ rm -f ${FEXT%%.*}.csv
 #po instalaci gnumeric, kde neni gnome to nejde, ale libreoffice to umi taky
 libreoffice --infilter=CSV:44,34,76,1 --headless --convert-to csv $FEXT
 #ssconvert $FEXT ${FEXT%%.*}.csv
-iconv -f utf8 -t cp1250 ${FEXT%%.*}.csv > ${FEXT%%.*}.csv.cp1250
+iconv -f utf8 -t latin2 ${FEXT%%.*}.csv > ${FEXT%%.*}.csv.cp1250
 mv ${FEXT%%.*}.csv.cp1250 ${FEXT%%.*}.csv
 rm -f $ZIPF
 
