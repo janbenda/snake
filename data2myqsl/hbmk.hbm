@@ -1,0 +1,4 @@
+sql.prg
+hbct.hbc
+hbmysql.hbc
+-static
