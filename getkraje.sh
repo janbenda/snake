@@ -1,7 +1,9 @@
 function createdbs {
 
+  mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists UI_KRAJ_1960"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists UI_VUSC"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists UI_OKRES"
+  mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists ui_kraj_1960"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists ui_vusc"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists ui_okres"
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "drop table if exists zv_pcobc"
@@ -27,6 +29,15 @@ function createdbs {
      DATUM_VZNIKU varchar(50) \
   )"
 
+  mysql -h$SERVER -u$USER -p$PASS ${DB} -e "create table UI_KRAJ_1960 ( \
+     KOD int primary key, \
+     NAZEV varchar(50), \
+     STAT_KOD varchar(10), \
+     PLATI_OD varchar(50), \
+     PLATI_DO varchar(50), \
+     DATUM_VZNIKU varchar(50) \
+  )"
+
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "create table zv_pcobc ( \
      NAZCOBCE varchar(50), \
      PSC varchar(5) primary key, \
@@ -37,20 +48,32 @@ function createdbs {
   )"
 }
 
+FIRMA=${1:-"zepter"}
+ZIPFILES="UI_VUSC.zip UI_OKRES.zip UI_KRAJ_1960.zip"
 
-
-ZIPFILES="UI_VUSC.zip UI_OKRES.zip"
-
-DB=temptables
-SERVER=192.168.2.4
-USER=jan
-PASS=1qw
-#wic
-DB=snake
-SERVER=192.168.1.10
-USER=root
-PASS=Honda621
-SQLCHARSET=latin2
+case "$FIRMA" in
+"zepter")
+  DB=temptables
+  SERVER=192.168.2.4
+  USER=jan
+  PASS=1qw
+  SQLCHARSET=cp1250
+  ;;
+"wic")
+  DB=snake
+  SERVER=192.168.1.10
+  USER=root
+  PASS=Honda621
+  SQLCHARSET=latin2
+  ;;
+"gar")
+  DB=snake
+  SERVER=172.25.15.32
+  USER=root
+  PASS=Honda621
+  SQLCHARSET=latin2
+  ;;
+esac
 
 createdbs
 
@@ -68,18 +91,14 @@ do
   mysql -h$SERVER -u$USER -p$PASS ${DB} -e "rename table ${TABLE} to ${TABLE,,}"
 done
 
-
-
-
 ZIPF=xls_pcobc.zip
-rm -f ${ZIPF}
-curl -o ${ZIPF} https://www.ceskaposta.cz/documents/10180/3738087/${ZIPF}
 FEXT=zv_pcobc.xls
-rm -f ${FEXT}
+rm -f ${ZIPF} ${FEXT} ${FEXT%%.*}.csv
+curl -o ${ZIPF} https://www.ceskaposta.cz/documents/10180/3738087/${ZIPF}
 unzip $ZIPF  
-rm -f ${FEXT%%.*}.csv
 #po instalaci gnumeric, kde neni gnome to nejde, ale libreoffice to umi taky
 libreoffice --infilter=CSV:44,34,76,1 --headless --convert-to csv $FEXT
+sleep 1
 #ssconvert $FEXT ${FEXT%%.*}.csv
 iconv -f utf8 -t ${SQLCHARSET} ${FEXT%%.*}.csv > ${FEXT%%.*}.csv.conv
 mv ${FEXT%%.*}.csv.conv ${FEXT%%.*}.csv
