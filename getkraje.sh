@@ -53,7 +53,7 @@ ZIPFILES="UI_VUSC.zip UI_OKRES.zip UI_KRAJ_1960.zip"
 
 case "$FIRMA" in
 "zepter")
-  DB=temptables
+  DB=zakaznik
   SERVER=192.168.2.4
   USER=jan
   PASS=1qw
