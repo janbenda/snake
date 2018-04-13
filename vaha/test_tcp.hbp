@@ -1,0 +1,4 @@
+test_tcp.prg
+hbtcpio.hbc
+-static
+-otest_tcp
