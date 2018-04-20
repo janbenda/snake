@@ -7,12 +7,15 @@ REQUEST HB_TCPIO
 
 FUNCTION Main(sIPVahy)
 
-   LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cHFile := "h.txt", cRunFile := "run.trg"
+   LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cHFile := hb_dirBase() + "h.txt", cRunFile := hb_dirBase() + "run.trg"
   hb_default(@sIPVahy,"192.168.1.2:10001")
 
 // socket communication example:
 
-
+   if "1" $ hb_MemoRead( cRunFile )
+      OutStd( Time() + ':' + "Asi uz bezi jedna instance, v " + cRunFile + " je jedna" + hb_eol() )
+     quit
+   endif  
    hb_MemoWrit( cRunFile, "1" )
    DO WHILE "1" $ hb_MemoRead( cRunFile )
       OutStd( Time() + ':Otviram ' + "tcp:" + sIPVahy )
@@ -22,7 +25,7 @@ FUNCTION Main(sIPVahy)
          hb_vfWrite( pFile, "SP" + Chr( 13 ) )  // Activation for request S+P+<CR>
          hb_vfWrite( pFile, "SN" + Chr( 13 ) )  // Net weight   S+N+<CR>
          IF ( nSrcBytes := hb_vfRead( pFile, @cBuffer, F_BLOCK ) ) <>  F_BLOCK
-            // neprecetlo se to sparvne zkusim znovu
+            // neprecetlo se to spravne, zkusim znovu
             OutStd( Time() + ':' + 'Nacteno: ' + hb_ntos( nSrcBytes ) + " bytu, misto: " + hb_ntos( F_BLOCK ) + ", zkusim znovu." + hb_eol() )
          ELSE
             hb_MemoWrit( cHFile, Time() + ':' + hb_StrReplace( cBuffer, { Chr( 13 ) => '' } ) + hb_eol() )
@@ -34,9 +37,7 @@ FUNCTION Main(sIPVahy)
          OutStd( Time() + ':' + 'Nepodarilo se otevrit connection k vaze' + hb_eol() )
       ENDIF
    ENDDO
-// close virtual file.
-   // cBuffer = hb_StrReplace( cBuffer, { Chr( 10 ) => '_Chr10_', Chr( 13 ) => '_Chr13_' } )
-   // OutStd( cBuffer )
+   hb_MemoWrit( cRunFile, "0" )
    OutStd( "Konec" )
 
    RETURN .T.
