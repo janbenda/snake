@@ -5,18 +5,14 @@
 
 REQUEST HB_TCPIO
 
-FUNCTION Main(sIPVahy)
+FUNCTION Main( sIPVahy, cHFile )
 
-   LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cHFile := hb_dirBase() + "h.txt", cRunFile := hb_dirBase() + "run.trg"
+   LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cRunFile := hb_dirBase() + "run.trg"
   hb_default(@sIPVahy,"192.168.1.2:10001")
+  hb_default(@cHFile, hb_dirBase() + "h.txt")
 
-// socket communication example:
-
-   if "1" $ hb_MemoRead( cRunFile )
-      OutStd( Time() + ':' + "Asi uz bezi jedna instance, v " + cRunFile + " je jedna" + hb_eol() )
-     quit
-   endif  
    hb_MemoWrit( cRunFile, "1" )
+   OutStd ( HB_GTVERSION(), HB_GTVERSION(1) )
    DO WHILE "1" $ hb_MemoRead( cRunFile )
       OutStd( Time() + ':Otviram ' + "tcp:" + sIPVahy )
       pFile := hb_vfOpen( "tcp:" + sIPVahy, FO_READWRITE )
