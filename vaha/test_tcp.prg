@@ -1,18 +1,25 @@
 #include "fileio.ch"
 
 #define F_BLOCK  9
-#define F_PAUSE  2
 
 REQUEST HB_TCPIO
 
-FUNCTION Main(sIPVahy,sVaha,sPath)
+FUNCTION Main( sIPVahy, sVaha, sPath )
 
    LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cHFile := "h.txt", cRunFile := "run.trg"
-  hb_default(@sIPVahy,"192.168.1.2:10001")
+
+// pridani cteni konfiguracniho ini souboru, zatim pro nPause (prodleva mezi ctenimi z vahy)
+   IF !readcfg()
+      OutStd( Time() + ':' + "INI KO!" )
+      RETURN .F.
+   ENDIF
+   OutStd( Time() + ':' + 'Nacteno pausa: ' + zs_set( 'nPause' ) )
+
+   hb_default( @sIPVahy, "192.168.1.2:10001" )
 
 // 18/04 JK modifikace na pracoviste vaha   01 nebo 02
-  cHFile:=sPath+'/h'+sVaha+'.txt'
-  cRunFile:=sPath+'/run'+sVaha+'.trg'
+   cHFile := sPath + '/h' + sVaha + '.txt'
+   cRunFile := sPath + '/run' + sVaha + '.trg'
 
 // socket communication example:
 
@@ -33,7 +40,7 @@ FUNCTION Main(sIPVahy,sVaha,sPath)
             OutStd( Time() + ':' + hb_StrReplace( cBuffer, { Chr( 13 ) => '' } ) + hb_eol() )
          ENDIF
          hb_vfClose( pFile )
-         hb_idleSleep( F_PAUSE )
+         hb_idleSleep( Val( zs_set( 'nPause' ) ) )
       ELSE
          OutStd( Time() + ':' + 'Nepodarilo se otevrit connection k vaze' + hb_eol() )
       ENDIF
@@ -44,4 +51,3 @@ FUNCTION Main(sIPVahy,sVaha,sPath)
    OutStd( "Konec" )
 
    RETURN .T.
-

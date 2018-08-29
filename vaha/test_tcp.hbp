@@ -1,4 +1,6 @@
 test_tcp.prg
 hbtcpio.hbc
+hbct.hbc
+../zs_set.prg
 -static
 -otest_tcp
