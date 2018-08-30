@@ -40,6 +40,7 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
             OutStd( Time() + ':' + hb_StrReplace( cBuffer, { Chr( 13 ) => '' } ) + hb_eol() )
          ENDIF
          hb_vfClose( pFile )
+         readcfg()
          hb_idleSleep( Val( zs_set( 'nPause' ) ) )
       ELSE
          OutStd( Time() + ':' + 'Nepodarilo se otevrit connection k vaze' + hb_eol() )
