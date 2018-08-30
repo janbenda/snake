@@ -1,3 +1,6 @@
+ANNOUNCE HB_GT_SYS
+REQUEST HB_GT_NUL_DEFAULT
+
 #include "fileio.ch"
 
 #define F_BLOCK  9
@@ -13,7 +16,7 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
       OutStd( Time() + ':' + "INI KO!" )
       RETURN .F.
    ENDIF
-   OutStd( Time() + ':' + 'Nacteno pausa: ' + zs_set( 'nPause' ) )
+   OutStd( Time() + ':' + 'Nacteno pausa: ' + iif( ValType( zs_set( 'nPause' ) ) = 'N', hb_ntos( zs_set( 'nPause' ) ), zs_set( 'nPause' ) ) )
 
    hb_default( @sIPVahy, "192.168.1.2:10001" )
 
@@ -22,7 +25,6 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
    cRunFile := sPath + '/run' + sVaha + '.trg'
 
 // socket communication example:
-
 
    hb_MemoWrit( cRunFile, "1" )
    DO WHILE "1" $ hb_MemoRead( cRunFile )
@@ -33,7 +35,7 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
          hb_vfWrite( pFile, "SP" + Chr( 13 ) )  // Activation for request S+P+<CR>
          hb_vfWrite( pFile, "SN" + Chr( 13 ) )  // Net weight   S+N+<CR>
          IF ( nSrcBytes := hb_vfRead( pFile, @cBuffer, F_BLOCK ) ) <>  F_BLOCK
-            // neprecetlo se to sparvne zkusim znovu
+            // neprecetlo se to spravne zkusim znovu
             OutStd( Time() + ':' + 'Nacteno: ' + hb_ntos( nSrcBytes ) + " bytu, misto: " + hb_ntos( F_BLOCK ) + ", zkusim znovu." + hb_eol() )
          ELSE
             hb_MemoWrit( cHFile, Time() + ':' + hb_StrReplace( cBuffer, { Chr( 13 ) => '' } ) + hb_eol() )
@@ -41,7 +43,7 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
          ENDIF
          hb_vfClose( pFile )
          readcfg()
-         hb_idleSleep( Val( zs_set( 'nPause' ) ) )
+         hb_idleSleep( Val( iif( ValType( zs_set( 'nPause' ) ) = 'N', hb_ntos( zs_set( 'nPause' ) ), zs_set( 'nPause' ) ) ) )
       ELSE
          OutStd( Time() + ':' + 'Nepodarilo se otevrit connection k vaze' + hb_eol() )
       ENDIF
