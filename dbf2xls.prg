@@ -7,7 +7,7 @@ REQUEST HB_CODEPAGE_CS852
 #include "dbstruct.ch"
 #include "hbgtinfo.ch"
 
-FUNCTION Main( sDbfFile, bFieldNames, sDbfEncoding )
+FUNCTION Main( sDbfFile, bFieldNames, sDbfEncoding, bDate2String )
 
    LOCAL workbook, worksheet, row, col, wbName, i, nFCount
    LOCAL dateformat
@@ -15,9 +15,13 @@ FUNCTION Main( sDbfFile, bFieldNames, sDbfEncoding )
    IF ValType( bFieldNames ) = "C"
       bFieldNames = &bFieldNames
    ENDIF
+   IF ValType( bDate2String ) = "C"
+      bDate2String = &bDate2String
+   ENDIF
 
    hb_default( @bFieldNames, .T. )
    hb_default( @sDbfEncoding, "cp852" )
+   hb_default( @bDate2String, .F. )
 
    SET DELE ON
    SET EXCL OFF
@@ -30,8 +34,12 @@ FUNCTION Main( sDbfFile, bFieldNames, sDbfEncoding )
       sDbfFile = sDbfFile + ".dbf"
    ENDIF
    IF Empty( sDbfFile ) .OR. !File( sDbfFile )
-      ?"Pouziti: dbf2xls  sDbfFile, bFieldNames, sDbfEncoding"
+      ?"Pouziti: dbf2xls  sDbfFile, bFieldNames, sDbfEncoding, bDate2String"
       QUIT
+/*
+   ELSE
+      ?"dbf2xls " + hb_ValToStr(  sDbfFile ) + hb_ValToStr( bFieldNames ) + hb_ValToStr( sDbfEncoding ) + hb_ValToStr( bDate2String )
+*/
    ENDIF
    // ? "ZS_INIT " + ExeName() + " Initialized " + Version() + " " + rddSetDefault() + " indexExt:" + IndexExt() + " ordBagExt:" + ordBagExt() + " CP:" + hb_cdpSelect() + " GT" + hb_gtVersion() + " " + hb_gtVersion( 1 ) + " LockScheme:" + hb_ntos( Set( _SET_DBFLOCKSCHEME ) ) + " font size=" + AllTrim( Str( hb_gtInfo( HB_GTI_FONTSIZE ) ) )
 
@@ -54,8 +62,8 @@ FUNCTION Main( sDbfFile, bFieldNames, sDbfEncoding )
    ENDIF
    workbook := lxw_workbook_new( wbName )
    worksheet := lxw_workbook_add_worksheet( workbook, NIL )
-   dateformat  := lxw_workbook_add_format(workbook)
-   lxw_format_set_num_format(dateformat, "DD.MM.YYYY")
+   dateformat  := lxw_workbook_add_format( workbook )
+   lxw_format_set_num_format( dateformat, "DD.MM.YYYY" )
    nFCount := FCount()
    FOR i := 1 TO nFCount
       lxw_worksheet_set_column( worksheet, col + i - 1, col + i - 1, Max( Len( FieldName( i ) ), FieldLen( i ) ) * 1.2, NIL )
@@ -69,7 +77,11 @@ FUNCTION Main( sDbfFile, bFieldNames, sDbfEncoding )
    GO TOP
    WHILE !Eof()
       FOR i := 1 TO nFCount
-         WriteColumn( worksheet, row, col + i - 1, FieldGet( i ), sDbfEncoding, dateformat )
+         IF bDate2String .AND. ValType( FieldGet( i ) ) = "D"
+            WriteColumn( worksheet, row, col + i - 1, DToC( FieldGet( i ) ), sDbfEncoding, dateformat )
+         ELSE
+            WriteColumn( worksheet, row, col + i - 1, FieldGet( i ), sDbfEncoding, dateformat )
+         ENDIF
       NEXT i
       row = row + 1
       SKIP
