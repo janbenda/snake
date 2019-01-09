@@ -1,3 +1,8 @@
+Nakonec jsem pro dbf2xls pouzil libreoffice takto:
+libreoffice --headless --infilter=dBase:25 --convert-to xlsx file.dbf --outdir out-dir
+
+kde 25 by asi mela byt codepage cp852
+
 tohle musim udelat jinak to pada ve worksheet.close
 --- a/src/worksheet.c
 +++ b/src/worksheet.c
