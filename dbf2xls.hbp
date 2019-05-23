@@ -1,0 +1,8 @@
+xhb.hbc
+-lhblibxlsxwriter
+-w2 -es2 
+-static
+-i/usr/local/src/hbvs/hblibxlsxwriter/
+-i/usr/local/src/hbvs/libxlsxwriter/include/
+-L/usr/local/src/hbvs/hblibxlsxwriter/ -lhblibxlsxwriter
+dbf2xls.prg
