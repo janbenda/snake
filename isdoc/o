@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<Invoice version="6.0.1" xmlns="http://isdoc.cz/namespace/2013">
+<DocumentType>1</DocumentType>
+<ID>FV19092459</ID>
+<UUID>5177367E-DEEC-499E-B1D8-F0DF1500F828</UUID>
+<IssueDate>2019-05-22</IssueDate>
+<TaxPointDate>2019-05-22</TaxPointDate>
+<VATApplicable>true</VATApplicable>
+<ElectronicPossibilityAgreementReference>COMID/3989</ElectronicPossibilityAgreementReference>
+<LocalCurrencyCode>CZK</LocalCurrencyCode>
+<CurrRate>1.000000</CurrRate>
+<RefCurrRate>1.000000</RefCurrRate>
+<AccountingSupplierParty>
+<Party>
+<PartyIdentification>
+<UserID>COMS0</UserID>
+<CatalogFirmIdentification>0</CatalogFirmIdentification>
+<ID>63485826</ID>
+</PartyIdentification>
+<PartyName>
+<Name>SWS a.s.</Name>
+</PartyName>
+<PostalAddress>
+<StreetName>Dostihová 1</StreetName>
+<BuildingNumber></BuildingNumber>
+<CityName>Slušovice</CityName>
+<PostalZone>76315</PostalZone>
+<Country>
+<IdentificationCode>CZ</IdentificationCode>
+<Name></Name>
+</Country>
+</PostalAddress>
+<PartyTaxScheme>
+<CompanyID>CZ699000207</CompanyID>
+<TaxScheme>VAT</TaxScheme>
+</PartyTaxScheme>
+<RegisterIdentification>
+<RegisterKeptAt>Firma je zapsána v OR vedeném KS v Brně</RegisterKeptAt>
+<RegisterFileRef>odd.B, vl.1773</RegisterFileRef>
+<RegisterDate>1900-01-01</RegisterDate>
+</RegisterIdentification>
+<Contact>
+<Telephone>577 640 555</Telephone><ElectronicMail>obchod@sws.cz</ElectronicMail></Contact>
+</Party>
+</AccountingSupplierParty>
+<SellerSupplierParty>
+<Party>
+<PartyIdentification>
+<UserID>COM0</UserID>
+<CatalogFirmIdentification>0</CatalogFirmIdentification>
+<ID>63485826</ID>
+</PartyIdentification>
+<PartyName>
+<Name>SWS a.s.</Name>
+</PartyName>
+<PostalAddress>
+<StreetName>Dostihová 1</StreetName>
+<BuildingNumber></BuildingNumber>
+<CityName>Slušovice</CityName>
+<PostalZone>76315</PostalZone>
+<Country>
+<IdentificationCode>CZ</IdentificationCode>
+<Name></Name>
+</Country>
+</PostalAddress>
+<PartyTaxScheme>
+<CompanyID>CZ699000207</CompanyID>
+<TaxScheme>VAT</TaxScheme>
+</PartyTaxScheme>
+<Contact>
+<Name>Automatický Fakturant</Name><Telephone>111</Telephone><ElectronicMail>sws@sws.cz</ElectronicMail></Contact>
+</Party>
+</SellerSupplierParty>
+<AccountingCustomerParty>
+<Party>
+<PartyIdentification>
+<UserID>COMS3989</UserID>
+<CatalogFirmIdentification>0</CatalogFirmIdentification>
+<ID>49282751</ID>
+</PartyIdentification>
+<PartyName>
+<Name>Snake, spol. s r.o.</Name>
+</PartyName>
+<PostalAddress>
+<StreetName>Jungmannova 11</StreetName>
+<BuildingNumber></BuildingNumber>
+<CityName>Lanškroun - Žichlínské Předměs</CityName>
+<PostalZone>56301</PostalZone>
+<Country>
+<IdentificationCode>CZ</IdentificationCode>
+<Name></Name>
+</Country>
+</PostalAddress>
+<PartyTaxScheme>
+<CompanyID>CZ49282751</CompanyID>
+<TaxScheme>VAT</TaxScheme>
+</PartyTaxScheme>
+<RegisterIdentification>
+<RegisterKeptAt>OR: Krajský soud v Hradci Králové</RegisterKeptAt>
+<RegisterFileRef>oddíl C, vložka 4226</RegisterFileRef>
+<RegisterDate>1900-01-01</RegisterDate>
+</RegisterIdentification>
+<Contact>
+<Telephone>465322336</Telephone><ElectronicMail>jiri.kolder@snake.cz</ElectronicMail></Contact>
+</Party>
+</AccountingCustomerParty>
+<BuyerCustomerParty>
+<Party>
+<PartyIdentification>
+<UserID>COMS3989</UserID>
+<CatalogFirmIdentification>0</CatalogFirmIdentification>
+<ID>49282751</ID>
+</PartyIdentification>
+<PartyName>
+<Name>Snake, spol. s r.o.</Name>
+</PartyName>
+<PostalAddress>
+<StreetName>Jungmannova 11</StreetName>
+<BuildingNumber></BuildingNumber>
+<CityName>Lanškroun - Žichlínské Předměs</CityName>
+<PostalZone>56301</PostalZone>
+<Country>
+<IdentificationCode>CZ</IdentificationCode>
+<Name></Name>
+</Country>
+</PostalAddress>
+<PartyTaxScheme>
+<CompanyID>CZ49282751</CompanyID>
+<TaxScheme>VAT</TaxScheme>
+</PartyTaxScheme>
+<RegisterIdentification>
+<RegisterKeptAt>OR: Krajský soud v Hradci Králové</RegisterKeptAt>
+<RegisterFileRef>oddíl C, vložka 4226</RegisterFileRef>
+<RegisterDate>1900-01-01</RegisterDate>
+</RegisterIdentification>
+<Contact>
+<Telephone>465322336</Telephone><ElectronicMail>jiri.kolder@snake.cz</ElectronicMail></Contact>
+</Party>
+</BuyerCustomerParty>
+<OrderReferences>
+<OrderReference id="OP19112413">
+<SalesOrderID>OP19112413</SalesOrderID>
+<ExternalOrderID>2019007</ExternalOrderID>
+<IssueDate>2019-05-22</IssueDate>
+</OrderReference>
+</OrderReferences>
+<DeliveryNoteReferences>
+<DeliveryNoteReference id="DV19158169">
+<ID>DV19158169</ID>
+<IssueDate>2019-05-22</IssueDate>
+</DeliveryNoteReference>
+</DeliveryNoteReferences>
+<InvoiceLines>
+<InvoiceLine>
+<ID>30902036</ID>
+<OrderReference ref="OP19112413">
+<LineID>23653917</LineID>
+</OrderReference>
+<DeliveryNoteReference ref="DV19158169">
+<LineID>22521334</LineID>
+</DeliveryNoteReference>
+<InvoicedQuantity unitCode="ks">1.000</InvoicedQuantity>
+<LineExtensionAmount>1860</LineExtensionAmount>
+<LineExtensionAmountTaxInclusive>2250.6</LineExtensionAmountTaxInclusive>
+<LineExtensionTaxAmount>390.6</LineExtensionTaxAmount>
+<UnitPrice>1860</UnitPrice>
+<UnitPriceTaxInclusive>2250.6</UnitPriceTaxInclusive>
+<ClassifiedTaxCategory>
+<Percent>21</Percent>
+<VATCalculationMethod>0</VATCalculationMethod>
+</ClassifiedTaxCategory>
+<Note></Note>
+<Item>
+<Description>DATACOM UTP kabel drát, Cat.5e, box 305m, PVC - Outdoor (venkovní, -40 - +70)</Description>
+<SellersItemIdentification><ID>339464</ID></SellersItemIdentification>
+<SecondarySellersItemIdentification><ID>1103</ID></SecondarySellersItemIdentification></Item>
+</InvoiceLine>
+</InvoiceLines>
+<TaxTotal>
+<TaxSubTotal>
+<TaxableAmount>1860</TaxableAmount>
+<TaxAmount>390.6</TaxAmount>
+<TaxInclusiveAmount>2250.6</TaxInclusiveAmount>
+<AlreadyClaimedTaxableAmount>0</AlreadyClaimedTaxableAmount>
+<AlreadyClaimedTaxAmount>0</AlreadyClaimedTaxAmount>
+<AlreadyClaimedTaxInclusiveAmount>0</AlreadyClaimedTaxInclusiveAmount>
+<DifferenceTaxableAmount>1860</DifferenceTaxableAmount>
+<DifferenceTaxAmount>390.6</DifferenceTaxAmount>
+<DifferenceTaxInclusiveAmount>2250.6</DifferenceTaxInclusiveAmount>
+<TaxCategory>
+<Percent>21</Percent>
+</TaxCategory>
+</TaxSubTotal>
+<TaxAmount>390.6</TaxAmount>
+</TaxTotal>
+<LegalMonetaryTotal>
+<TaxExclusiveAmount>1860</TaxExclusiveAmount>
+<TaxInclusiveAmount>2250.6</TaxInclusiveAmount>
+<AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+<AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+<DifferenceTaxExclusiveAmount>1860</DifferenceTaxExclusiveAmount>
+<DifferenceTaxInclusiveAmount>2250.6</DifferenceTaxInclusiveAmount>
+<PayableRoundingAmount>0.4</PayableRoundingAmount>
+<PaidDepositsAmount>0.00</PaidDepositsAmount>
+<PayableAmount>2251</PayableAmount>
+</LegalMonetaryTotal>
+<PaymentMeans>
+<Payment>
+<PaidAmount>2251</PaidAmount>
+<PaymentMeansCode>42</PaymentMeansCode>
+<Details>
+<PaymentDueDate>2019-06-12</PaymentDueDate>
+<ID>864348661            </ID>
+<BankCode>0100</BankCode>
+<Name>KB Zlín - CZK</Name>
+<IBAN>CZ6901000000000864348661</IBAN>
+<BIC>KOMBCZPPXXX</BIC>
+<VariableSymbol>19092459</VariableSymbol>
+<ConstantSymbol>0008</ConstantSymbol>
+<SpecificSymbol></SpecificSymbol>
+</Details>
+</Payment>
+<AlternateBankAccounts>
+<AlternateBankAccount>
+<ID>2030490118                              </ID>
+<BankCode>2600</BankCode>
+<Name>Citibank Europe - CZK</Name>
+<IBAN>CZ7026000000002030490118</IBAN>
+<BIC>CITICZPX</BIC>
+</AlternateBankAccount>
+</AlternateBankAccounts>
+</PaymentMeans>
+</Invoice>
