@@ -14,8 +14,10 @@ REQUEST HB_CODEPAGE_CS852
                             { "VERSION",      "C",  100, 0 }, ;
                             { "ID",   "C",  100, 0 }, ;
                             { "REF",     "C", 100, 0 }, ;
-                            { "UNITCODE",     "C", 100, 0 } ;
+                            { "UNITCODE",     "C", 100, 0 }, ;
+                            { "TAGALL", "C", 1000, 0 } ;
                           }
+   LOCAL _sCurrTag,_sPrevTag, _nPrevLev
    SET DELE ON
    SET EXCL OFF
    Set( _SET_DATEFORMAT, "dd.mm.yyyy" )
@@ -31,6 +33,14 @@ REQUEST HB_CODEPAGE_CS852
    ?"Creating:" + sISDOC_CSV + ".dbf"
    ?dbCreate( sISDOC_CSV + ".dbf", aStruct, nil, .T., "isdoc" )
    append from &sISDOC_CSV DELIMITED WITH ( { '"', "," } )
-//   browse()
+/* tady zkusim nejak doplnit cely TAG podle urovne, budu tam tagy sctitat oddelovat lomitkem
+   go top
+   while !eof()
+     if field->children>=0
+       
+     skip
+   enddo
+   browse()
+   close all
 
  RETURN

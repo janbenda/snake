@@ -4,7 +4,7 @@ FUNCTION Main( file )
   hHash := XMLtoHash( pRoot, "" )
   mxmlDelete( pRoot )
 
-  QOUT(hb_jsonEncode(hHash,.T.))
+  hb_memowrit( ( file+'.json' ), hb_jsonEncode( hHash, .T. ) )
  RETURN nil
 
 STATIC FUNCTION type_cb( node ) ;  RETURN MXML_OPAQUE
