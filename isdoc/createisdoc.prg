@@ -31,8 +31,8 @@ PROCEDURE Main( sISDOC_CSV, sOutputName )
    rddSetDefault( "DBFNTX" )
 
    DELETE FILE ( sOutputName + ".dbf" )
-   ?"Creating:" + sOutputName + ".dbf"
-   ?dbCreate( sOutputName + ".dbf", aStruct, NIL, .T., "isdoc" )
+  // ?"Creating:" + sOutputName + ".dbf"
+   dbCreate( sOutputName + ".dbf", aStruct, NIL, .T., "isdoc" )
    APPEND FROM &sISDOC_CSV DELIMITED WITH ( { '"', "," } )
    GO TOP
    IF Trim( Upper( field->TAG ) ) $ "TAG"
@@ -56,7 +56,6 @@ PROCEDURE Main( sISDOC_CSV, sOutputName )
          Lock()
          REPLA tagall WITH _sCurrTag
       ELSE
-// hb_HSet( hLevel, _sCurrTag + trim( field->TAG ) + _sDelim, { field->children, _sCurrTag })
          IF hb_HHasKey( hLevel, _sCurrTag )
             hLevel[ _sCurrTag, 1 ] = hLevel[ _sCurrTag, 1 ] - 1
          ENDIF
@@ -64,7 +63,7 @@ PROCEDURE Main( sISDOC_CSV, sOutputName )
          REPLA tagall WITH  _sCurrTag + Trim( field->TAG ) + _sDelim
       ENDIF
       IF hb_HHasKey( hLevel, _sCurrTag )
-         ? PadL( Trim( field->TAG ), 40 ) + ' Pred: currtag:' + _sCurrTag + ' childs:' + hb_ntos( hLevel[ _sCurrTag, 1 ] ) + ' parent:' + hLevel[ _sCurrTag, 2 ]
+   //      ? PadL( Trim( field->TAG ), 40 ) + ' Pred: currtag:' + _sCurrTag + ' childs:' + hb_ntos( hLevel[ _sCurrTag, 1 ] ) + ' parent:' + hLevel[ _sCurrTag, 2 ]
       ENDIF
       SetNewTag( hLevel, @_sCurrTag, @_sPrevTag )
       IF hb_HHasKey( hLevel, _sCurrTag )
@@ -72,7 +71,7 @@ PROCEDURE Main( sISDOC_CSV, sOutputName )
       ENDIF
       SKIP
    ENDDO
-   Browse()
+//   Browse()
    CLOSE ALL
 
    RETURN
