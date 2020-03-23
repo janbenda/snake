@@ -1,0 +1,6 @@
+read_tcp.prg
+hbtcpio.hbc
+hbct.hbc
+../zs_set.prg
+-static
+-o{hb_name}
