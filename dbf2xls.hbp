@@ -3,6 +3,11 @@ xhb.hbc
 -w2 -es2 
 -static
 -i/usr/local/src/hbvs/hblibxlsxwriter/
--i/usr/local/src/hbvs/libxlsxwriter/include/
--L/usr/local/src/hbvs/hblibxlsxwriter/ -lhblibxlsxwriter
+-lhblibxlsxwriter
+-L/usr/local/src/hbvs/hblibxlsxwriter/
+-L/usr/local/lib/ 
+-lxlsxwriter
+#-i/usr/local/src/hbvs/libxlsxwriter/include/
+#-L/usr/local/src/hbvs/hblibxlsxwriter/ 
+-i/usr/local/libxlsxwriter/include/
 dbf2xls.prg
