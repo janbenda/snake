@@ -10,7 +10,7 @@ REQUEST HB_TCPIO
 FUNCTION Main( sIPVahy, sVaha, sPath )
 
    LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cHileTmp, cHFile, cRunFile := "run.trg"
-   LOCAL reVaha, sPatternVaha := '\s+([0-9]+\.[0-9]),kg', aMatches
+   LOCAL reVaha, sPatternVaha:='\s+([0-9]+\.[0-9]),kg', aMatches
 
 // pridani cteni konfiguracniho ini souboru, zatim pro nPause (prodleva mezi ctenimi z vahy)
    IF !readcfg()
@@ -28,7 +28,7 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
 
    hb_MemoWrit( cRunFile, "1" )
    OutStd( Time() + ': regexp ' + sPatternVaha + hb_eol() )
-// HB_RegExComp( <cPattern> [ , <lCaseSensitive>, <lMultiLine> ] )
+//HB_RegExComp( <cPattern> [ , <lCaseSensitive>, <lMultiLine> ] ) 
    reVaha := hb_regexComp( sPatternVaha, .T., .F. )
    DO WHILE "1" $ hb_MemoRead( cRunFile )
       d_OutStd( 'Otviram ' + "tcp:" + sIPVahy + hb_eol() )
@@ -41,12 +41,12 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
          ELSE
             aMatches := hb_regex( reVaha, cBuffer )
             IF Len( aMatches ) >= 2
-               d_OutStd( 'Extrahovano :' + aMatches[ 2 ] + ' z : ' + cBuffer + hb_eol() )
+               d_OutStd( 'Extrahovano :' + aMatches[2] + ' z : ' + cBuffer + hb_eol() )
                hb_MemoWrit( cHFileTmp, Time() + ':' + aMatches[ 2 ] + hb_eol() )
                d_OutStd( hb_StrReplace( cBuffer, { Chr( 13 ) => '' } ) + hb_eol() )
-               IF FRename( cHFileTmp, cHFile ) == -1
-                  d_OutStd( "Can't rename file to " + cHFile + " : " + Str( FError(), 2 ) )
-               ENDIF
+         IF FRename( cHFileTmp, cHFile ) == -1
+            d_OutStd( "Can't rename file to " + cHFile + " : " + Str( FError(), 2 ) )
+         ENDIF
             ELSE
                OutStd( Time() + ':' + "Divna data, vaha nejde extrahovat:" + cBuffer + hb_eol() )
             ENDIF
@@ -65,10 +65,8 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
 
    RETURN .T.
 
-STATIC FUNCTION d_OutStd( sText )
-
-   IF zs_set( 'debug' ) = 1
-      OutStd( Time() + ':' + sText )
-   ENDIF
-
-   RETURN .T.
+static function d_OutStd( sText )
+if zs_set('debug')=1
+  OutStd( Time() + ':' + sText )
+endif
+return .t.
