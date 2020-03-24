@@ -35,7 +35,7 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
       pFile := hb_vfOpen( "tcp:" + sIPVahy, FO_READ )
       IF !Empty( pFile )
          cBuffer := Space( F_BLOCK )
-         IF ( nSrcBytes := hb_vfRead( pFile, @cBuffer, F_BLOCK ) ) <>  F_BLOCK .OR. !( hb_regexHas( sPatternVaha, cBuffer, .T., .T. ) )
+         IF ( nSrcBytes := hb_vfRead( pFile, @cBuffer, F_BLOCK ) ) <>  F_BLOCK .OR. !( hb_regexHas( reVaha, cBuffer, .T., .T. ) )
             // neprecetlo se to spravne zkusim znovu
             d_OutStd( 'Nacteno: ' + hb_ntos( nSrcBytes ) + " bytu, misto: " + hb_ntos( F_BLOCK ) + ", zkusim znovu. Precteno " + cBuffer + hb_eol() )
          ELSE
