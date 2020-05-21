@@ -1,14 +1,13 @@
 ANNOUNCE HB_GT_SYS
 REQUEST HB_GT_NUL_DEFAULT
+REQUEST HB_TCPIO
 
 #include "fileio.ch"
-
 #define F_BLOCK  17
-
-REQUEST HB_TCPIO
 
 FUNCTION Main( sIPVahy, sVaha, sPath )
 
+   LOCAL nOpenCount := 1, nLimitOpenCount
    LOCAL nSrcBytes, pFile, lDone := .F., cBuffer, cHileTmp, cHFile, cRunFile := "run.trg"
    LOCAL reVaha, sPatternVaha := '\s+([0-9]+\.[0-9]),kg', aMatches
 
@@ -18,6 +17,8 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
       RETURN .F.
    ENDIF
    OutStd( Time() + ':' + 'Nacteno pausa: ' + iif( ValType( zs_set( 'nPause' ) ) = 'N', hb_ntos( zs_set( 'nPause' ) ), zs_set( 'nPause' ) ) + hb_eol() )
+   nLimitOpenCount := Val( iif( ValType( zs_set( 'nLimitOpenCount' ) ) = 'U', '10', iif( ValType( zs_set( 'nLimitOpenCount' ) ) = 'N', hb_ntos( zs_set( 'nLimitOpenCount' ) ), zs_set( 'nLimitOpenCount' ) ) ) )
+   OutStd( Time() + ':' + 'Nacteno LimitOpenCount: ' + hb_ntos( nLimitOpenCount ) + hb_eol() )
 
    hb_default( @sIPVahy, "192.168.1.2:10001" )
 
@@ -28,11 +29,15 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
 
    hb_MemoWrit( cRunFile, "1" )
    OutStd( Time() + ': regexp ' + sPatternVaha + hb_eol() )
-// HB_RegExComp( <cPattern> [ , <lCaseSensitive>, <lMultiLine> ] )
-   reVaha := hb_regexComp( sPatternVaha, .T., .F. )
+
+   reVaha := hb_regexComp( sPatternVaha, .T., .F. ) // HB_RegExComp( <cPattern> [ , <lCaseSensitive>, <lMultiLine> ] )
    DO WHILE "1" $ hb_MemoRead( cRunFile )
-      d_OutStd( 'Otviram ' + "tcp:" + sIPVahy + hb_eol() )
-      pFile := hb_vfOpen( "tcp:" + sIPVahy, FO_READ )
+      IF Empty( pFile )
+         d_OutStd( 'Otviram ' + "tcp:" + sIPVahy + hb_eol() )
+         pFile := hb_vfOpen( "tcp:" + sIPVahy, FO_READ )
+         d_OutStd( 'Otevreno ' + "tcp:" + sIPVahy + hb_eol() )
+         nOpenCount := 1
+      ENDIF
       IF !Empty( pFile )
          cBuffer := Space( F_BLOCK )
          IF ( nSrcBytes := hb_vfRead( pFile, @cBuffer, F_BLOCK ) ) <>  F_BLOCK .OR. !( hb_regexHas( reVaha, cBuffer ) )
@@ -51,8 +56,10 @@ FUNCTION Main( sIPVahy, sVaha, sPath )
                OutStd( Time() + ':' + "Divna data, vaha nejde extrahovat:" + cBuffer + hb_eol() )
             ENDIF
          ENDIF
-         hb_vfClose( pFile )
-         readcfg()
+         IF nOpenCount++ > nLimitOpenCount
+            hb_vfClose( pFile )
+         ENDIF
+         // readcfg()
          hb_idleSleep( Val( iif( ValType( zs_set( 'nPause' ) ) = 'N', hb_ntos( zs_set( 'nPause' ) ), zs_set( 'nPause' ) ) ) )
       ELSE
          d_OutStd( 'Nepodarilo se otevrit connection k vaze' + hb_eol() )
