@@ -6,11 +6,13 @@ REQUEST HB_CODEPAGE_CS852C    // clipper kompatibilni tabulka
 #require "hbmysql"
 
 #include "inkey.ch"
+#include "hblog.ch"
+
 
 STATIC cdp_dbf, cdp_sql
 STATIC sRootDir // := hb_DirSepDel( hb_DirBase() )
-STATIC aFileMask // := { { "plan/steel.dbf", {} }, { "normy/buprod*dbf", {} }, { "normy/bunv*.dbf", {} }, { "normy/bunk*.dbf", {} }, { "normy/burez*.dbf", {} }, { "normy/bumezc*.dbf", {} }, { 'normy/mezc*.dbf', {} }, { "normy/butar*.dbf", {} }, { 'dta/vm1.dbf', { 'kdnr' } }, { "dta/buvm2*dbf", {} }, { "dta/vm21.dbf", { "v_typ,lager,c_rok1,c_mes1,artnr" } }, { "dta/fi3.dbf", {} }, { "dta/fi9.dbf", {}  }, { "dta/vm15.dbf", {}  } }
-STATIC cHostName // := "172.25.15.32" // "10.10.222.15" // "80.82.152.87"
+STATIC aFileMask 
+STATIC cHostName 
 STATIC cUser // := "root"
 STATIC cPassword // := "Honda621"
 STATIC cDatabase // := "snake"
@@ -22,6 +24,10 @@ FUNCTION main
 
    LOCAL cExt, cPath, cFile, sFileMask
 
+INIT LOG File( NIL, LogName() + ".log", 1000, 5 )        // Debug()
+LOG "Initialized " + Version() + " " + rddSetDefault() + " indexExt:" + IndexExt() + " ordBagExt:" + ordBagExt() + " CP:" + hb_cdpSelect() + " GT" + hb_gtVersion() + " " + hb_gtVersion( 1 ) + " LockScheme:" + Str( Set( _SET_DBFLOCKSCHEME ) ) 
+
+LOG "Start"
    readcfg()
    SetMode( 25, 80 )
 
@@ -31,7 +37,9 @@ FUNCTION main
       AEval( Directory( sRootDir + "/" + cPath + "/" + cFile + cExt ), {| x | ImportFile( sRootDir + "/" + cPath + x[ F_NAME ], sFileMask[ 2 ] ) } )
    NEXT sFileMask
 // vykonani batch SQL
+LOG "Running", cBatchSQL
    RunBatchSQL( cBatchSQL )
+LOG "Hotovo"
 
    RETURN .T.
 
@@ -69,7 +77,7 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
 
 
    hb_FNameSplit( cFile, @cPath, @cTable, @cExt )
-
+   LOG cFile
    USE ( cFile ) SHARED READONLY
    _vet := RecCount()
    nNumFields := FCount()
@@ -86,13 +94,13 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
 
    oServer := TMySQLServer():New( cHostName, cUser, cPassword )
    IF oServer:NetErr()
-      ? oServer:Error()
+      LOG oServer:Error()
       RETURN
    ENDIF
 
    oServer:SelectDB( cDatabase )
    IF oServer:NetErr()
-      ? oServer:Error()
+      LOG oServer:Error()
       RETURN
    ENDIF
 
@@ -100,13 +108,13 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
       IF hb_AScan( oServer:ListTables(), cTable,,, .T. ) > 0
          oServer:DeleteTable( cTable )
          IF oServer:NetErr()
-            ? oServer:Error()
+            LOG oServer:Error()
             RETURN
          ENDIF
       ENDIF
       oServer:CreateTable( cTable, aFieldStruct )
       IF oServer:NetErr()
-         ? oServer:Error()
+         LOG oServer:Error()
          RETURN
       ENDIF
    ENDIF
@@ -114,12 +122,12 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
    // Initialize MySQL table
    oTable := oServer:Query( "SELECT * FROM " + cTable + " LIMIT 1" )
    IF oTable:NetErr()
-      ? oTable:Error()
+      LOG oTable:Error()
       RETURN
    ENDIF
 
    IF ( conn := sql_opendb( cHostName,  cUser,  cPassword ) ) == nil
-      ? "Connection error:", mysql_error( conn )
+      LOG "Connection error:", mysql_error( conn )
       RETURN
    ENDIF
 
@@ -146,8 +154,8 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
          cInsertQuery := hb_StrShrink( cInsertQuery ) + "),("
          j = j + 1
          IF RecNo() % 1000 == 0
-            DevPos( Row(), 50 )
-            DevOut( hb_ntos( _vet ) + " " + hb_ntos( RecNo() ) )
+            // DevPos( Row(), 50 )
+            // DevOut( hb_ntos( _vet ) + " " + hb_ntos( RecNo() ) )
             // DevOut( "imported recs:", hb_ntos( RecNo() ) )
          ENDIF
          dbSkip()
@@ -155,7 +163,7 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
       cInsertQuery := hb_StrShrink( cInsertQuery, 2 )
       // ?cInsertQuery
       IF !sql_query( conn, cInsertQuery )
-         ? "sql " + cInsertQuery + hb_eol() + " error:", mysql_error( conn )
+         LOG "sql " + cInsertQuery + hb_eol() + " error:", mysql_error( conn )
          EXIT
       ENDIF
    ENDDO
@@ -163,9 +171,10 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
    IF sql_query( conn, cInsertQuery  )
       SQLres = mysql_store_result( conn )
       SQLrow := mysql_fetch_row( SQLres )
+      LOG "Importovano", SQLrow[1]
    ELSE
-      ?"Import neuspesny!"
-      ? "sql " + cInsertQuery + hb_eol() + " error:", mysql_error( conn )
+      LOG "Import neuspesny!"
+      LOG "sql " + cInsertQuery + hb_eol() + " error:", mysql_error( conn )
    ENDIF
    dbCloseArea()
 
@@ -175,7 +184,7 @@ PROCEDURE dbf2mysq( cFile, aIndexy )
       cInsertQuery = "alter table " + cDatabase + "." + cTable + " add index " + StrTran( StrTran( ikey, ' ', '' ), ',', '_' ) + "( " + iKey + " )"
       IF sql_query( conn, cInsertQuery  )
       ELSE
-         ? "sql " + cInsertQuery + hb_eol() + " error:", mysql_error( conn )
+         LOG "sql " + cInsertQuery + hb_eol() + " error:", mysql_error( conn )
       ENDIF
    NEXT keys
 
@@ -201,7 +210,7 @@ STATIC FUNCTION HarbValueToSQL( Value )
 STATIC FUNCTION readcfg()
 
    IF Empty( hIni := hb_iniRead( ExeName() + ".ini" ) )
-      ? ExeName() + ".ini"  + " is Not a valid .ini file!"
+      LOG ExeName() + ".ini"  + " is Not a valid .ini file!"
       QUIT
    ELSE
       cSection = 'DBF'
@@ -229,30 +238,30 @@ FUNCTION RunBatchSQL( cBatchSQL )
    ENDIF
 
    IF ( conn := sql_opendb( cHostName,  cUser,  cPassword ) ) == nil
-      ? "Connection error:", mysql_error( conn )
+      LOG "Connection error:", mysql_error( conn )
       RETURN
    ENDIF
    cQuery = "use " + cDatabase
    IF sql_query( conn, cQuery )
-      ? "sql " + cQuery + hb_eol() + " OK"
+      LOG "sql " + cQuery + hb_eol() + " OK"
    ELSE
-      ? "sql " + cQuery + hb_eol() + " error:", mysql_error( conn )
+      LOG "sql " + cQuery + hb_eol() + " error:", mysql_error( conn )
    ENDIF
 
    oFile := TFileRead():New( cBatchSQL )
    oFile:Open()
    IF oFile:Error()
-      ? oFile:ErrorMsg( "FileRead: " )
-      ? hb_eol()
+      LOG oFile:ErrorMsg( "FileRead: " )
+      //? hb_eol()
    ELSE
       DO WHILE oFile:MoreToRead()
          cQuery = oFile:ReadLine()
          IF ! Empty( cQuery )
             cStartTime = Time()
             IF sql_query( conn, cQuery  )
-               ? Time() + " sql " + cQuery + hb_eol() + " OK " + ElapTime( cStartTime, Time() )
+               LOG Time() + " sql " + cQuery + hb_eol() + " OK " + ElapTime( cStartTime, Time() )
             ELSE
-               ? "sql " + cQuery + hb_eol() + " error:", mysql_error( conn )
+               LOG "sql " + cQuery + hb_eol() + " error:", mysql_error( conn )
             ENDIF
          ENDIF
       ENDDO
@@ -260,3 +269,14 @@ FUNCTION RunBatchSQL( cBatchSQL )
    ENDIF
 
    RETURN .T.
+
+STATIC FUNCTION LogName()
+
+   LOCAL sExeName := ExeName()
+#if defined( __PLATFORM__LINUX )
+
+   sExeName := hb_StrReplace( sExename, { hb_FNameDir( sExeName ) => '/tmp/' } )
+#endif
+
+   RETURN sExeName
+

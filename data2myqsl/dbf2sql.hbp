@@ -1,3 +1,4 @@
+xhb.hbc
 hbmisc.hbc
 dbf2sql.prg
 -o${hb_name}
