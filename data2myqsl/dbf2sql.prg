@@ -1,3 +1,4 @@
+/* sestavuji u Jirky, protoze ja uz mam novejsi glibc, taky clienta MAriadb a ne mysql a to nema statickou knihovnu atd jeste k to mu patri sql.prg a hbmk.hbm dbf2sql.hbp */
 REQUEST HB_CODEPAGE_CS852
 REQUEST HB_CODEPAGE_CSWIN
 REQUEST HB_CODEPAGE_CS852C    // clipper kompatibilni tabulka
