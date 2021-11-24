@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+		version="1.0"
+                xmlns:xt="http://www.jclark.com/xt"
+                extension-element-prefixes="xt">
+
+<xsl:output method="text" indent="no" encoding="Windows-1250" />
+
+<xsl:template match="rsp:responsePack">
+	<xsl:for-each select="rsp:responsePackItem/lStk:listStock/lStk:stock">
+		<xsl:value-of select="stk:stockHeader/stk:id" />
+		<xsl:text>,</xsl:text>
+		<xsl:value-of select="stk:stockHeader/stk:stockType" />
+		<xsl:text>,</xsl:text>
+		<xsl:value-of select="stk:stockHeader/stk:code" />
+		<xsl:text>,</xsl:text>
+		<xsl:value-of select="stk:stockHeader/stk:isSales" />
+		<xsl:text>,
+		</xsl:text>
+	</xsl:for-each>
+</xsl:template>
+
+</xsl:stylesheet>

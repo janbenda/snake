@@ -1,0 +1,16 @@
+-o${hb_name}
+hbmxml.hbc
+xhb.hbc
+{win|dos}S:\__PROG__\hb\zs\zslib\zs.hbc
+{win|dos}S:\__PROG__\hb\zs\zslib\zs.prg
+{unix}/usr/local/src/zs/zslib/zs.hbc
+{unix}/usr/local/src/zs/zslib/zs.prg
+isdoc.prg
+-es2 -w3
+-hbexe   
+-b
+#hlasi ze neni ace a rddads pres require rddads.hbc to ale nevim kde bere
+#-inc     
+-trace   
+#s timhle debuggerem mi to nedebugue protoze to je na sitovou kominujaci napriklad  s vscode
+/home/jan/hb/debugger.prg
