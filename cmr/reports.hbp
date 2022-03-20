@@ -1,0 +1,5 @@
+sddmy.hbc
+hbcurl.hbc
+xhb.hbc
+-o${hb_name}
+reports.prg

@@ -1,0 +1,6 @@
+hbmysql.hbc
+xhb.hbc
+{unix}/usr/local/src/zs/zslib/zs.hbc
+{win|dos}S:\__PROG__\hb\zs\zslib\zs.hbc
+
+-w3 -es2

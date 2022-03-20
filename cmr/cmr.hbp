@@ -1,0 +1,9 @@
+-o${hb_name}
+sddmy.hbc
+xhb.hbc
+hbct.hbc
+hbtcpio.hbc
+hbcurl.hbc
+{unix}/usr/local/src/zs/zslib/zs.hbc
+{unix}/usr/local/src/zs/zslib/zs.prg
+cmr.prg
