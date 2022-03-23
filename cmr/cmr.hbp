@@ -7,3 +7,5 @@ hbcurl.hbc
 {unix}/usr/local/src/zs/zslib/zs.hbc
 {unix}/usr/local/src/zs/zslib/zs.prg
 cmr.prg
+-w3 -es2
+-n2
