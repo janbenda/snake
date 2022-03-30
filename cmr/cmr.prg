@@ -1,4 +1,4 @@
-REQUEST SQLMIX, SDDODBC, SDDMY
+// REQUEST SQLMIX, SDDODBC, SDDMY
 REQUEST HB_TCPIO
 
 REQUEST ZS
@@ -15,10 +15,10 @@ REQUEST HB_CODEPAGE_CS852C
 
 FUNCTION Main()
 
-   LOCAL bLibreOffice, cPath, cReportTemplate, nLin := 1, nCol := 1, x
+   LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x
    LOCAL bErrBlck1, bErrBlck2, wbName, oExcel, oSheet
    LOCAL oServiceManager, oDesktop, oDoc, oParams
-   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server
+   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cKdnr
 
    // /pri teto kombinaci to je sparvne v Exelu i LO a bez transkodovani, asi to dela samo
    hb_cdpSelect ( "CS852C" )
@@ -35,34 +35,40 @@ FUNCTION Main()
    cReportTemplate = zs_set( 'cReportTemplate' )
    bLibreOffice = zs_set( 'bLibreOffice' )
    cmr_server = zs_set( "cmr_server" )
+   hOutput = zs_set( "hOutput" )
+   hb_HSetCaseMatch( hOutput, .F. )
+   LOG "hOutput", hOutput
 
    oWin = WOpen( 0, 0, MaxRow(), MaxCol(), .T. )
    Log "GT" + hb_gtVersion() + " " + hb_gtVersion( 1 )
 
    WSelect( oWin )
    WBox( 0 )
-   cBuffer = Space( 6 )
+   cBuffer = "100003" // Space( 6 )
    @ 1, 1 SAY "Zakaznik:" GET cBuffer PICT "999999"
    READ
    WClose()
    LOG "Zadano", cBuffer
 
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
-   LOG FError(), "ferror()", FError(), "pFile", pFile
    IF !Empty( pFile )
       nLen := hb_vfWrite( pFile, cBuffer,, 1000 )
       LOG "Odesláno cBuffer", cBuffer, "delka", nLen
-      cBuffer := Space( 2048 )
-      nLen := hb_vfRead( pFile, @cBuffer, Len( cBuffer ) )
-      LOG "Přijato", nLen, cBuffer
+      cBuffer := Space( 4096 )
+      cAll = ""
+      WHILE ( nLen := hb_vfRead( pFile, @cBuffer, Len( cBuffer ) ) > 0 )
+         LOG "Přijato", nLen, AllTrim( cBuffer )
+         cAll += AllTrim( cBuffer )
+         cBuffer := Space( 4096 )
+      END
       hb_vfClose( pFile )
-
    ELSE
       LOG "pFile", pFile
       cBuffer = "Nepodarilo se spojit se zakladnou" + ' ' + cmr_server
       LOG cBuffer
+      QUIT
    ENDIF
-
+   aFields = hb_ATokens( cAll, "\n" )
 
    IF bLibreOffice
       IF ( oServiceManager := win_oleCreateObject( "com.sun.star.ServiceManager" ) ) != NIL
@@ -70,7 +76,7 @@ FUNCTION Main()
          oParams := {}
          AAdd( oParams, oServiceManager:Bridge_GetStruct( "com.sun.star.beans.PropertyValue" ) )
          oParams[ 1 ]:Name := "Hidden"
-         oParams[ 1 ]:Value := .T.
+         oParams[ 1 ]:Value :=!zs_set( 'visible' )
 
          oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + cReportTemplate ), "_blank", 0, oParams )
 // oSheet := oDoc:getSheets:getByName( 'ZCA LIVE Current' )
@@ -84,23 +90,36 @@ FUNCTION Main()
          LOG 'Error: Excel not available. [' + win_oleErrorText() + ']'
          RETURN .F.
       ENDIF
-      oExcel:Visible := .F.
+      oExcel:Visible := zs_set( 'visible' )
       oExcel:DisplayAlerts := .F.
       oExcel:WorkBooks:Add( cPath + cReportTemplate )
-      oSheet := oExcel:Sheets( 'ZCA LIVE Current' )
+      oSheet := oExcel:ActiveSheet
    ENDIF
 
    // catch any errors
    bErrBlck1 := ErrorBlock( {| x | Break( x ) } )
    BEGIN SEQUENCE
-      WriteCell( bLibreOffice, oSheet, nLin, nCol, hb_DateTime() )
-      WriteCell( bLibreOffice, oSheet, nLin, nCol + 1, "Testovaci hodnota" )
-      WriteCell( bLibreOffice, oSheet, nLin, nCol + 2, cBuffer )
+      LOG "aFields"
+      FOR EACH xField in aFields
+         xName = Left( xField, At( ":", xField ) - 1 )
+         xVal = AllTrim( SubStr( xField, At( ":", xField ) + 1 ) )
+         IF Upper( xName ) $ "KDNR/CISLO"  // pro pouziti v nazvu souboru
+            cKdnr = xVal
+         ENDIF
+         LOG xField, "xName:", xName, "xVal:", xVal
+         IF hb_HHasKey( hOutput, xName )
+            nlin = hOutput[ xName ][ 'row' ]
+            nCol = hOutput[ xName ][ 'col' ]
+            WriteCell( bLibreOffice, oSheet, nLin, nCol, xVal )
+         ELSE
+            LOG xName, "nema v konfiguraci zadane umisteni"
+         ENDIF
+      NEXT
       // save
       bErrBlck2 := ErrorBlock( {| x | Break( x ) } )
       BEGIN SEQUENCE
          // if the file already exists and it's not open, it's overwritten without asking
-         wbName := cPath + StrTran( StrTran( cReportTemplate, "ZYYY", "output" ), 'CC', 'CZ' )
+         wbName := cPath + StrTran( StrTran( cReportTemplate, "kdnr", cKdnr ), 'cas', StrTran( hb_TToC( hb_DateTime(), "YYMMDD", "HHMMSS" ), " ", "T" ) )
          IF bLibreOffice
             oParams := {}
             AAdd( oParams, oServiceManager:Bridge_GetStruct( "com.sun.star.beans.PropertyValue" ) )
@@ -110,13 +129,17 @@ FUNCTION Main()
             oParams[ 2 ]:Name := 'FilterName'
             oParams[ 2 ]:Value := 'Calc MS Excel 2007 XML'
             oDoc:storeAsURL( OO_ConvertToURL( wbName ), oParams )
-            oDoc:Close( .T. )
-            oDesktop:Terminate()
+            IF !zs_set( 'visible' )
+               oDoc:Close( .T. )
+               oDesktop:Terminate()
+            ENDIF
          ELSE
             oSheet:SaveAs( wbName )
             // close and remove the copy of EXCEL.EXE from memory
-            oExcel:WorkBooks:Close()
-            oExcel:Quit()
+            IF !zs_set( 'visible' )
+               oExcel:WorkBooks:Close()
+               oExcel:Quit()
+            ENDIF
          ENDIF
          LOG  wbName + ' was created !!!'
       RECOVER USING x
@@ -144,8 +167,10 @@ FUNCTION Main()
    END SEQUENCE
    ErrorBlock( bErrBlck1 )
 
-   oSheet := NIL
-   oExcel := NIL
+   IF !zs_set( 'visible' )
+      oSheet := NIL
+      oExcel := NIL
+   ENDIF
 
    RETURN .T.
 
@@ -194,4 +219,3 @@ STATIC FUNCTION WriteCell( bLibreOffice, oSheet, nLin, nCol, xCol )
    ENDIF
 
    RETURN .T.
-
