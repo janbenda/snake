@@ -76,7 +76,7 @@ FUNCTION Main()
          oParams := {}
          AAdd( oParams, oServiceManager:Bridge_GetStruct( "com.sun.star.beans.PropertyValue" ) )
          oParams[ 1 ]:Name := "Hidden"
-         oParams[ 1 ]:Value :=!zs_set( 'visible' )
+         oParams[ 1 ]:Value := !zs_set( 'visible' )
 
          oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + cReportTemplate ), "_blank", 0, oParams )
 // oSheet := oDoc:getSheets:getByName( 'ZCA LIVE Current' )
