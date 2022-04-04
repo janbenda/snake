@@ -10,6 +10,8 @@ REQUEST HB_CODEPAGE_CS852C
 #include "hbcurl.ch"
 #include "hbgtinfo.ch"
 // #include "box.ch"
+#include "inkey.ch"
+
 
 #include "dbinfo.ch"
 
@@ -18,15 +20,15 @@ FUNCTION Main()
    LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x
    LOCAL bErrBlck1, bErrBlck2, wbName, oExcel, oSheet
    LOCAL oServiceManager, oDesktop, oDoc, oParams
-   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cKdnr
+   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cKdnr, cDL
 
    // /pri teto kombinaci to je sparvne v Exelu i LO a bez transkodovani, asi to dela samo
    hb_cdpSelect ( "CS852C" )
    hb_SetTermCP ( "CP1250" )
    Set( _SET_DBCODEPAGE, 'CS852C' )
 
-// SetMode( 5, 25 )
-   SetMode( 50, 120 )
+   SetMode( 4, 25 )
+// SetMode( 50, 120 )
    IF !readcfg()
       LOG "INI KO!"
       RETURN .F.
@@ -44,12 +46,27 @@ FUNCTION Main()
 
    WSelect( oWin )
    WBox( 0 )
-   cBuffer = "100003" // Space( 6 )
-   @ 1, 1 SAY "Zakaznik:" GET cBuffer PICT "999999"
+   cKdnr = PadR( zs_set( "cKdnr" ), 6 )
+   hb_default( @cKdnr, Space( 6 ) )
+
+   cDL = Space( 8 )
+   @ 0, 1 SAY "Z kazn¡k:" GET cKdnr PICT "999999"
+   @ 1, 1 SAY "Dod.list:" GET cDL PICT "99999999" WHEN Empty( cKdnr ) VALID Empty( cKdnr )
    READ
    WClose()
-   LOG "Zadano", cBuffer
-
+   IF LastKey() = K_ESC
+      LOG "ESC"
+      QUIT
+   ELSE
+      LOG "Zad no:, cKdnr", cKdnr, "cDL", cDL
+      IF !Empty( cKdnr )
+         zs_set( "cKdnr", cKdnr )
+         readcfg( , .T. )
+         cBuffer = cKdnr
+      ELSE
+         cBuffer = cDL
+      ENDIF
+   ENDIF
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
    IF !Empty( pFile )
       nLen := hb_vfWrite( pFile, cBuffer,, 1000 )
@@ -57,7 +74,7 @@ FUNCTION Main()
       cBuffer := Space( 4096 )
       cAll = ""
       WHILE ( nLen := hb_vfRead( pFile, @cBuffer, Len( cBuffer ) ) > 0 )
-         LOG "PÅ™ijato", nLen, AllTrim( cBuffer )
+         LOG "Pýijato", nLen, AllTrim( cBuffer )
          cAll += AllTrim( cBuffer )
          cBuffer := Space( 4096 )
       END
