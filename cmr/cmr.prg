@@ -20,7 +20,7 @@ FUNCTION Main()
    LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x, i
    LOCAL bErrBlck1, bErrBlck2, wbName, oExcel, oSheet
    LOCAL oServiceManager, oDesktop, oDoc, oParams
-   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cDL, cAppendix, xValRow, j
+   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cDL, cAppendix, xValRow, j, nCounter
 
    // /pri teto kombinaci to je sparvne v Exelu i LO a bez transkodovani, asi to dela samo
    hb_cdpSelect ( "CS852C" )
@@ -33,6 +33,7 @@ FUNCTION Main()
       LOG "INI KO!"
       RETURN .F.
    ENDIF
+   nCounter = Val( zs_set( "nCounter" ) )
    cPath = hb_DirSepAdd( hb_DirBase() )
    cReportTemplate = zs_set( 'cReportTemplate' )
    bLibreOffice = zs_set( 'bLibreOffice' )
@@ -209,6 +210,8 @@ FUNCTION Main()
       oSheet := NIL
       oExcel := NIL
    ENDIF
+   zs_set( "nCounter", nCounter + 1 )
+   readcfg(, .T. )
 
    RETURN .T.
 
