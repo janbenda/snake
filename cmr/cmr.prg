@@ -20,7 +20,7 @@ FUNCTION Main()
    LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x, i
    LOCAL bErrBlck1, bErrBlck2, wbName, oExcel, oSheet
    LOCAL oServiceManager, oDesktop, oDoc, oParams
-   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cDL, cAppendix, cKdnr
+   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cDL, cAppendix, xValRow, j
 
    // /pri teto kombinaci to je sparvne v Exelu i LO a bez transkodovani, asi to dela samo
    hb_cdpSelect ( "CS852C" )
@@ -46,27 +46,16 @@ FUNCTION Main()
 
    WSelect( oWin )
    WBox( 0 )
-   // cKdnr = PadR( zs_set( "cKdnr" ), 6 )
-   // hb_default( @cKdnr, Space( 6 ) )
 
    cDL = Space( 8 )
-   // @ 0, 1 SAY "Z kazn¡k:" GET cKdnr PICT "999999"
-   @ 1, 1 SAY "Dod.list:" GET cDL PICT "99999999" // WHEN Empty( cKdnr ) VALID Empty( cKdnr )
+   @ 1, 1 SAY "Dod.list:" GET cDL PICT "99999999"
    READ
-   WClose()
    IF LastKey() = K_ESC
       LOG "ESC"
       QUIT
    ELSE
-      // LOG "Zad no:, cKdnr", cKdnr, "cDL", cDL
       LOG "Zad no: cDL", cDL
-// IF !Empty( cKdnr )
-// zs_set( "cKdnr", cKdnr )
-// readcfg( , .T. )
-// cBuffer = cKdnr
-// ELSE
       cBuffer = cDL
-// ENDIF
    ENDIF
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
    IF !Empty( pFile )
@@ -119,7 +108,7 @@ FUNCTION Main()
    BEGIN SEQUENCE
       LOG "aFields"
       FOR EACH xField in aFields
-         FOR i = 0 TO 2   // pro vicenmasobne pouziti v tiskopisu, pouzivam polozku s indexem napr ort_1, ort_2
+         FOR i = 0 TO 2   // pro vicenasobne pouziti v tiskopisu, pouzivam polozku s indexem napr ort_1, ort_2
             IF i = 0
                cAppendix = ""
             ELSE
@@ -127,24 +116,48 @@ FUNCTION Main()
             ENDIF
             xName = Left( xField, At( ":", xField ) - 1 )         + cAppendix
             xVal = AllTrim( SubStr( xField, At( ":", xField ) + 1 ) )
-            IF Upper( xName ) $ "/KDNR/CISLO/"  // pro pouziti v nazvu souboru
-               cKdnr = xVal
+            IF Upper( xName ) $ "/CISLO/"  // pro pouziti v nazvu souboru
+               cDL = xVal
             ENDIF
-            LOG xField, "xName:", xName, "xVal:", xVal
+            IF !Empty( xName ) .AND. Left( Right( xName, 2 ), 1 ) <> "_"  // logovat jen opravdovou field
+               LOG xField, "xName:", xName, "xVal:", xVal
+            ENDIF
             IF hb_HHasKey( hOutput, xName )
                nlin = hOutput[ xName ][ 'row' ]
                nCol = hOutput[ xName ][ 'col' ]
-               WriteCell( bLibreOffice, oSheet, nLin, nCol, xVal )
+               IF "|" $ xVal // viceradkova polozka
+                  j = 0
+                  FOR EACH xValRow in hb_ATokens( xVal, "|" )
+                     WriteCell( bLibreOffice, oSheet, nLin + j, nCol, xValRow )
+                     j += 1
+                  NEXT xValRow
+               ELSE
+                  WriteCell( bLibreOffice, oSheet, nLin, nCol, xVal )
+               ENDIF
             ELSE
-               LOG xName, "nema v konfiguraci zadane umisteni"
+               IF !Empty( xName ) .AND. Left( Right( xName, 2 ), 1 ) <> "_"  // logovat jen opravdovou field
+                  LOG xName, "nema v konfiguraci zadane umisteni"
+               ENDIF
             ENDIF
          NEXT i
       NEXT
+      /* tisk eval hodnot */
+      FOR EACH xField in hOutput
+         xVal = xField:__enumKey()
+         IF Left( xVal, 5 ) = "eval "
+            nlin = xField[ 'row' ]
+            nCol = xField[ 'col' ]
+            xVal = &( SubStr( xVal, 6 ) )
+            WriteCell( bLibreOffice, oSheet, nLin, nCol, xVal )
+         ENDIF
+      NEXT xFields
+
+
       // save
       bErrBlck2 := ErrorBlock( {| x | Break( x ) } )
       BEGIN SEQUENCE
          // if the file already exists and it's not open, it's overwritten without asking
-         wbName := cPath + StrTran( StrTran( cReportTemplate, "kdnr", cKdnr ), 'cas', StrTran( hb_TToC( hb_DateTime(), "YYMMDD", "HHMMSS" ), " ", "T" ) )
+         wbName := cPath + StrTran( StrTran( cReportTemplate, "cdl", cDl ), 'cas', StrTran( hb_TToC( hb_DateTime(), "YYMMDD", "HHMMSS" ), " ", "T" ) )
          IF bLibreOffice
             oParams := {}
             AAdd( oParams, oServiceManager:Bridge_GetStruct( "com.sun.star.beans.PropertyValue" ) )
