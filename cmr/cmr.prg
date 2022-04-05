@@ -17,10 +17,10 @@ REQUEST HB_CODEPAGE_CS852C
 
 FUNCTION Main()
 
-   LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x
+   LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x, i
    LOCAL bErrBlck1, bErrBlck2, wbName, oExcel, oSheet
    LOCAL oServiceManager, oDesktop, oDoc, oParams
-   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cKdnr, cDL
+   LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cDL, cAppendix, cKdnr
 
    // /pri teto kombinaci to je sparvne v Exelu i LO a bez transkodovani, asi to dela samo
    hb_cdpSelect ( "CS852C" )
@@ -46,31 +46,32 @@ FUNCTION Main()
 
    WSelect( oWin )
    WBox( 0 )
-   cKdnr = PadR( zs_set( "cKdnr" ), 6 )
-   hb_default( @cKdnr, Space( 6 ) )
+   // cKdnr = PadR( zs_set( "cKdnr" ), 6 )
+   // hb_default( @cKdnr, Space( 6 ) )
 
    cDL = Space( 8 )
-   @ 0, 1 SAY "Z kazn¡k:" GET cKdnr PICT "999999"
-   @ 1, 1 SAY "Dod.list:" GET cDL PICT "99999999" WHEN Empty( cKdnr ) VALID Empty( cKdnr )
+   // @ 0, 1 SAY "Z kazn¡k:" GET cKdnr PICT "999999"
+   @ 1, 1 SAY "Dod.list:" GET cDL PICT "99999999" // WHEN Empty( cKdnr ) VALID Empty( cKdnr )
    READ
    WClose()
    IF LastKey() = K_ESC
       LOG "ESC"
       QUIT
    ELSE
-      LOG "Zad no:, cKdnr", cKdnr, "cDL", cDL
-      IF !Empty( cKdnr )
-         zs_set( "cKdnr", cKdnr )
-         readcfg( , .T. )
-         cBuffer = cKdnr
-      ELSE
-         cBuffer = cDL
-      ENDIF
+      // LOG "Zad no:, cKdnr", cKdnr, "cDL", cDL
+      LOG "Zad no: cDL", cDL
+// IF !Empty( cKdnr )
+// zs_set( "cKdnr", cKdnr )
+// readcfg( , .T. )
+// cBuffer = cKdnr
+// ELSE
+      cBuffer = cDL
+// ENDIF
    ENDIF
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
    IF !Empty( pFile )
       nLen := hb_vfWrite( pFile, cBuffer,, 1000 )
-      LOG "OdeslÃ¡no cBuffer", cBuffer, "delka", nLen
+      LOG "Odesl no cBuffer", cBuffer, "delka", nLen
       cBuffer := Space( 4096 )
       cAll = ""
       WHILE ( nLen := hb_vfRead( pFile, @cBuffer, Len( cBuffer ) ) > 0 )
@@ -118,19 +119,26 @@ FUNCTION Main()
    BEGIN SEQUENCE
       LOG "aFields"
       FOR EACH xField in aFields
-         xName = Left( xField, At( ":", xField ) - 1 )
-         xVal = AllTrim( SubStr( xField, At( ":", xField ) + 1 ) )
-         IF Upper( xName ) $ "KDNR/CISLO"  // pro pouziti v nazvu souboru
-            cKdnr = xVal
-         ENDIF
-         LOG xField, "xName:", xName, "xVal:", xVal
-         IF hb_HHasKey( hOutput, xName )
-            nlin = hOutput[ xName ][ 'row' ]
-            nCol = hOutput[ xName ][ 'col' ]
-            WriteCell( bLibreOffice, oSheet, nLin, nCol, xVal )
-         ELSE
-            LOG xName, "nema v konfiguraci zadane umisteni"
-         ENDIF
+         FOR i = 0 TO 2   // pro vicenmasobne pouziti v tiskopisu, pouzivam polozku s indexem napr ort_1, ort_2
+            IF i = 0
+               cAppendix = ""
+            ELSE
+               cAppendix = "_" + hb_ntoc( i )
+            ENDIF
+            xName = Left( xField, At( ":", xField ) - 1 )         + cAppendix
+            xVal = AllTrim( SubStr( xField, At( ":", xField ) + 1 ) )
+            IF Upper( xName ) $ "/KDNR/CISLO/"  // pro pouziti v nazvu souboru
+               cKdnr = xVal
+            ENDIF
+            LOG xField, "xName:", xName, "xVal:", xVal
+            IF hb_HHasKey( hOutput, xName )
+               nlin = hOutput[ xName ][ 'row' ]
+               nCol = hOutput[ xName ][ 'col' ]
+               WriteCell( bLibreOffice, oSheet, nLin, nCol, xVal )
+            ELSE
+               LOG xName, "nema v konfiguraci zadane umisteni"
+            ENDIF
+         NEXT i
       NEXT
       // save
       bErrBlck2 := ErrorBlock( {| x | Break( x ) } )
