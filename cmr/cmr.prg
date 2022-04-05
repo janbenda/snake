@@ -33,7 +33,10 @@ FUNCTION Main()
       LOG "INI KO!"
       RETURN .F.
    ENDIF
-   nCounter = Val( zs_set( "nCounter" ) )
+   nCounter = zs_set( "nCounter" )
+   IF ValType( nCounter ) = "C"
+      nCounter = Val( nCounter )
+   ENDIF
    cPath = hb_DirSepAdd( hb_DirBase() )
    cReportTemplate = zs_set( 'cReportTemplate' )
    bLibreOffice = zs_set( 'bLibreOffice' )
@@ -55,17 +58,17 @@ FUNCTION Main()
       LOG "ESC"
       QUIT
    ELSE
-      LOG "Zad no: cDL", cDL
+      LOG "Zadï¿½no: cDL", cDL
       cBuffer = cDL
    ENDIF
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
    IF !Empty( pFile )
       nLen := hb_vfWrite( pFile, cBuffer,, 1000 )
-      LOG "Odesl no cBuffer", cBuffer, "delka", nLen
+      LOG "Odeslï¿½no cBuffer", cBuffer, "delka", nLen
       cBuffer := Space( 4096 )
       cAll = ""
       WHILE ( nLen := hb_vfRead( pFile, @cBuffer, Len( cBuffer ) ) > 0 )
-         LOG "Pýijato", nLen, AllTrim( cBuffer )
+         LOG "Pï¿½ijato", nLen, AllTrim( cBuffer )
          cAll += AllTrim( cBuffer )
          cBuffer := Space( 4096 )
       END
@@ -210,7 +213,7 @@ FUNCTION Main()
       oSheet := NIL
       oExcel := NIL
    ENDIF
-   zs_set( "nCounter", nCounter + 1 )
+   zs_set( "nCounter", hb_ntoc( nCounter + 1 ) )
    readcfg(, .T. )
 
    RETURN .T.
