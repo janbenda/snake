@@ -58,17 +58,17 @@ FUNCTION Main()
       LOG "ESC"
       QUIT
    ELSE
-      LOG "Zad�no: cDL", cDL
+      LOG "Zadano: cDL", cDL
       cBuffer = cDL
    ENDIF
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
    IF !Empty( pFile )
       nLen := hb_vfWrite( pFile, cBuffer,, 1000 )
-      LOG "Odesl�no cBuffer", cBuffer, "delka", nLen
+      LOG "Odeslano cBuffer", cBuffer, "delka", nLen
       cBuffer := Space( 4096 )
       cAll = ""
       WHILE ( nLen := hb_vfRead( pFile, @cBuffer, Len( cBuffer ) ) > 0 )
-         LOG "P�ijato", nLen, AllTrim( cBuffer )
+         LOG "Prijato", nLen, AllTrim( cBuffer )
          cAll += AllTrim( cBuffer )
          cBuffer := Space( 4096 )
       END
