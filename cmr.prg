@@ -29,10 +29,6 @@ FUNCTION Main()
 
    SetMode( 4, 25 )
 // SetMode( 50, 120 )
-   IF !readcfg()
-      LOG "INI KO!"
-      RETURN .F.
-   ENDIF
    nCounter = zs_set( "nCounter" )
    IF ValType( nCounter ) = "C"
       nCounter = Val( nCounter )
@@ -214,7 +210,7 @@ FUNCTION Main()
       oExcel := NIL
    ENDIF
    zs_set( "nCounter", hb_ntoc( nCounter + 1 ) )
-   readcfg(, .T. )
+   readcfg( "counter.ini", .T. )
 
    RETURN .T.
 
@@ -263,3 +259,21 @@ STATIC FUNCTION WriteCell( bLibreOffice, oSheet, nLin, nCol, xCol )
    ENDIF
 
    RETURN .T.
+
+FUNCTION ReadCfgs()
+
+   /* pro poŸ¡tadlo si udØl m oddØlenì config, atóse nepýepisuje ten s polo§kami */
+   IF hb_FileExists( "counter.ini" )
+      IF !readcfg( "counter.ini" )
+         LOG  "INI KO!"
+         QUIT
+         RETURN .F.
+      ENDIF
+   ENDIF
+   IF !readcfg()
+      LOG  "INI KO!"
+      QUIT
+      RETURN .F.
+   ENDIF
+
+   RETURN 0
