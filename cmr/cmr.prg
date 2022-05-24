@@ -39,7 +39,7 @@ FUNCTION Main()
    cmr_server = zs_set( "cmr_server" )
    hOutput = zs_set( "hOutput" )
    hb_HSetCaseMatch( hOutput, .F. )
-   LOG "hOutput", hOutput
+   LOG "hOutput", hb_ValToExp( hOutput )
 
    oWin = WOpen( 0, 0, MaxRow(), MaxCol(), .T. )
    Log "GT" + hb_gtVersion() + " " + hb_gtVersion( 1 )
@@ -211,6 +211,7 @@ FUNCTION Main()
    ENDIF
    zs_set( "nCounter", hb_ntoc( nCounter + 1 ) )
    readcfg( "counter.ini", .T. )
+   LOG  "Zapsan incrementovany counter", nCounter, "?", "curdir()", CurDir(), "hb_dirbase()", hb_DirBase()
 
    RETURN .T.
 
@@ -262,12 +263,21 @@ STATIC FUNCTION WriteCell( bLibreOffice, oSheet, nLin, nCol, xCol )
 
 FUNCTION ReadCfgs()
 
-   /* pro poŸ¡tadlo si udØl m oddØlenì config, atóse nepýepisuje ten s polo§kami */
+/* pro poŸ¡tadlo si udØl m oddØlenì config, atóse nepýepisuje ten s polo§kami ale vypada to, ze v ReadCfgs to jest neloguje*/
    IF hb_FileExists( "counter.ini" )
       IF !readcfg( "counter.ini" )
          LOG  "INI KO!"
          QUIT
          RETURN .F.
+      ELSE
+         LOG  "Nacten counter", " z ini", "counter.ini", "curdir()", CurDir()
+      ENDIF
+   ELSE
+      LOG  "Ini s counter nenalezen", "curdir()", CurDir(), "je v hb_dirbase()", hb_DirBase(), "?"
+      IF hb_FileExists( hb_DirBase() + "counter.ini" )
+         LOG  "je tu"
+      ELSE
+         LOG  "Ini s counter nenalezen ani hb_DirBase()", hb_DirBase()
       ENDIF
    ENDIF
    IF !readcfg()
