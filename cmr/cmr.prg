@@ -47,8 +47,8 @@ FUNCTION Main()
    WSelect( oWin )
    WBox( 0 )
 
-   cDL = Space( 8 )
-   @ 1, 1 SAY "Dod.list:" GET cDL PICT "99999999"
+   cDL = Space( 10 )
+   @ 1, 1 SAY "Dod.list:" GET cDL PICT "!!!!!!!!!!"
    READ
    IF LastKey() = K_ESC
       LOG "ESC"
@@ -263,7 +263,7 @@ STATIC FUNCTION WriteCell( bLibreOffice, oSheet, nLin, nCol, xCol )
 
 FUNCTION ReadCfgs()
 
-/* pro poŸ¡tadlo si udØl m oddØlenì config, atóse nepýepisuje ten s polo§kami ale vypada to, ze v ReadCfgs to jest neloguje*/
+/* pro po  tadlo si ud l m odd len  config, at se nep episuje ten s polo kami ale vypada to, ze v ReadCfgs to jest neloguje*/
    IF hb_FileExists( "counter.ini" )
       IF !readcfg( "counter.ini" )
          LOG  "INI KO!"
