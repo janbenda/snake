@@ -291,5 +291,3 @@ FUNCTION ReadCfgs()
    ENDIF
 
    RETURN 0
-
-
