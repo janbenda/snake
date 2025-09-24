@@ -12,29 +12,32 @@ REQUEST HB_CODEPAGE_CS852C
 // #include "box.ch"
 #include "inkey.ch"
 
-
 #include "dbinfo.ch"
 
 FUNCTION Main()
 
-   LOCAL bLibreOffice, cPath, cReportTemplate, nLin, nCol, x, i
+   LOCAL bLibreOffice, cPath, cReportTemplate, cReportTemplateCommon, nLin, nCol, x, i
    LOCAL bErrBlck1, bErrBlck2, wbName, oExcel, oSheet
    LOCAL oServiceManager, oDesktop, oDoc, oParams
    LOCAL nLen, cBuffer, pFile, oWin, getlist := {}, cmr_server, hOutput, aFields, xField, cAll, xName, xVal, cDL, cAppendix, xValRow, j, nCounter
 
-   // /pri teto kombinaci to je sparvne v Exelu i LO a bez transkodovani, asi to dela samo
+   xhb_ErrorSys()  // loguji se chyby
+   xhb_ErrorLog( , .T. )
+
+   // /pri teto kombinaci to je spravne v Exelu i LO a bez transkodovani, asi to dela samo
    hb_cdpSelect ( "CS852C" )
    hb_SetTermCP ( "CP1250" )
    Set( _SET_DBCODEPAGE, 'CS852C' )
 
    SetMode( 4, 25 )
-// SetMode( 50, 120 )
+   // SetMode( 50, 120 )
    nCounter = zs_set( "nCounter" )
    IF ValType( nCounter ) = "C"
       nCounter = Val( nCounter )
    ENDIF
    cPath = hb_DirSepAdd( hb_DirBase() )
    cReportTemplate = zs_set( 'cReportTemplate' )
+   cReportTemplateCommon = zs_set( 'cReportTemplateCommon' )  // sablona bez predvyplneneho dopravce, pouzije se kdyz se prijmen neprazdna treba car_strasse
    bLibreOffice = zs_set( 'bLibreOffice' )
    cmr_server = zs_set( "cmr_server" )
    hOutput = zs_set( "hOutput" )
@@ -57,6 +60,7 @@ FUNCTION Main()
       LOG "Zadano: cDL", cDL
       cBuffer = cDL
    ENDIF
+
    pFile := hb_vfOpen( cmr_server, FO_READWRITE )
    IF !Empty( pFile )
       nLen := hb_vfWrite( pFile, cBuffer,, 1000 )
@@ -85,8 +89,8 @@ FUNCTION Main()
          oParams[ 1 ]:Name := "Hidden"
          oParams[ 1 ]:Value := !zs_set( 'visible' )
 
-         oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + cReportTemplate ), "_blank", 0, oParams )
-// oSheet := oDoc:getSheets:getByName( 'ZCA LIVE Current' )
+         oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + if( Lower( 'car_strasse' ) $ Lower( cAll ), cReportTemplateCommon, cReportTemplate ) ), "_blank", 0, oParams )
+         // oSheet := oDoc:getSheets:getByName( 'ZCA LIVE Current' )
          oSheet := oDoc:getSheets:getByIndex( 0 )
       ELSE
          LOG 'Error: Libre/Open Office not available. [' + win_oleErrorText() + ']'
@@ -263,7 +267,7 @@ STATIC FUNCTION WriteCell( bLibreOffice, oSheet, nLin, nCol, xCol )
 
 FUNCTION ReadCfgs()
 
-/* pro po  tadlo si ud l m odd len  config, at se nep episuje ten s polo kami ale vypada to, ze v ReadCfgs to jest neloguje*/
+   /* pro po  tadlo si ud l m odd len  config, at se nep episuje ten s polo kami ale vypada to, ze v ReadCfgs to jest neloguje*/
    IF hb_FileExists( "counter.ini" )
       IF !readcfg( "counter.ini" )
          LOG  "INI KO!"
@@ -287,3 +291,5 @@ FUNCTION ReadCfgs()
    ENDIF
 
    RETURN 0
+
+
