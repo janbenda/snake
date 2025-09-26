@@ -42,7 +42,7 @@ FUNCTION Main()
    cmr_server = zs_set( "cmr_server" )
    hOutput = zs_set( "hOutput" )
    hb_HSetCaseMatch( hOutput, .F. )
-   LOG "hOutput", hb_ValToExp( hOutput )
+   LOG "Takto vypada hOutput", hb_ValToExp( hOutput )
 
    oWin = WOpen( 0, 0, MaxRow(), MaxCol(), .T. )
    Log "GT" + hb_gtVersion() + " " + hb_gtVersion( 1 )
@@ -88,8 +88,13 @@ FUNCTION Main()
          AAdd( oParams, oServiceManager:Bridge_GetStruct( "com.sun.star.beans.PropertyValue" ) )
          oParams[ 1 ]:Name := "Hidden"
          oParams[ 1 ]:Value := !zs_set( 'visible' )
-
-         oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + if( Lower( 'car_strasse' ) $ Lower( cAll ), cReportTemplateCommon, cReportTemplate ) ), "_blank", 0, oParams )
+         IF Lower( 'car_' ) $ Lower( cAll )
+            oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + cReportTemplateCommon ), "_blank", 0, oParams )
+            LOG "Template", cPath + cReportTemplateCommon
+         ELSE
+            oDoc := oDesktop:loadComponentFromURL( OO_ConvertToURL( cPath + cReportTemplate ), "_blank", 0, oParams )
+            LOG "Template", cPath + cReportTemplate
+         ENDIF
          // oSheet := oDoc:getSheets:getByName( 'ZCA LIVE Current' )
          oSheet := oDoc:getSheets:getByIndex( 0 )
       ELSE
@@ -103,7 +108,13 @@ FUNCTION Main()
       ENDIF
       oExcel:Visible := zs_set( 'visible' )
       oExcel:DisplayAlerts := .F.
-      oExcel:WorkBooks:Add( cPath + cReportTemplate )
+      IF Lower( 'car_' ) $ Lower( cAll )
+         oExcel:WorkBooks:Add( cPath + cReportTemplateCommon )
+         LOG "Template", cPath + cReportTemplateCommon
+      ELSE
+         oExcel:WorkBooks:Add( cPath + cReportTemplate )
+         LOG "Template", cPath + cReportTemplate
+      ENDIF
       oSheet := oExcel:ActiveSheet
    ENDIF
 
