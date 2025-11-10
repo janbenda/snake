@@ -1,6 +1,9 @@
 
+
+
 REQUEST DBFNTX
 REQUEST ZS
+REQUEST HB_CODEPAGE_CS852
 REQUEST HB_CODEPAGE_CSWIN
 REQUEST HB_CODEPAGE_CSISO
 REQUEST HB_CODEPAGE_UTF8
@@ -10,19 +13,24 @@ MEMVAR hISDOC
 
 FUNCTION main ( cISDOCFile, cISDOCEncoding )
 
-   LOCAL oldCP := hb_cdpSelect( "UTF8" ), oldTCP := hb_SetTermCP( "UTF8" )
+   LOCAL oldCP := hb_cdpSelect(  zs_set( "cDbfEncoding" ) )
    LOCAL cISDOC
    LOCAL hTable, hElem, subElem, ssubElem, hItems, hI_H := zs_set( "I_H" ), xVal, hNode, tName, ttName
    PRIVA hISDOC
+   hb_SetTermCP( hb_defaultValue( zs_set( "TermCP" ), "CSISO" ) ) // hb_SetTermCP( "UTF8" )
 
-   LOG oldCP, oldTCP
-   Set( _SET_DBCODEPAGE, zs_set( "cDbfEncoding" ) )
+   //Set( _SET_DBCODEPAGE, zs_set( "cDbfEncoding" ) )
+
    IF Empty( cISDOCFile )
       cISDOCFile = zs_set( "cISDOCFile" ) // "FV19091834.ISDOC"
    ENDIF
 /* je treba dodelat zjiteni kodovani a dle toho prekodovat do UTF8 */
    hb_default( @cISDOCEncoding, "UTF8" )  // dle specifikace musi být v UTF8, ale budu to taky brat z parametru
-   cISDOC := hb_Translate( hb_MemoRead( cISDOCFile  ), cISDOCEncoding, "UTF8" )
+   
+   LOG "oldCP", oldCP, "ActualCP", hb_cdpSelect(), "cISDOCFile", cISDOCFile, "cISDOCEncoding", cISDOCEncoding, "cDbfEncoding", zs_set( "cDbfEncoding" ) 
+   cISDOC := hb_MemoRead( cISDOCFile  )
+   //zkusim konvertovat az pred zapisem do dbf,zatimbudu pracovat v utf8 cISDOC := hb_Translate( cISDOC, cISDOCEncoding, hb_cdpselect() )
+   cISDOC := hb_Translate( cISDOC, cISDOCEncoding, "UTF8" )
    hISDOC := hb_XMLtoHash( cISDOC, .T. )  // omit header
 
    FOR EACH hTable in hI_H
@@ -63,7 +71,7 @@ FUNCTION main ( cISDOCFile, cISDOCEncoding )
          ENDIF
       NEXT hElem
    NEXT hTable
-   IF zs_set( 'browse' )
+   IF zs_set( 'bBrowse' )
       Select( 1 )
       Browse()
       Select( 2 )
@@ -115,10 +123,6 @@ FUNCTION UpdateRec( cField, xVal )
 
    cField = Left( cField, 10 )  // zkratim nazev polozky na 10
    /**/
-   IF ValType( xVal ) = "C"
-      xVal = AllTrim( xVal )
-   ENDIF
-   // /
    DO CASE
    CASE ValType( field->&cField ) = "D"
       xVal = hb_CToD( xVal, "YYYY:MM:DD" )
@@ -131,8 +135,10 @@ FUNCTION UpdateRec( cField, xVal )
    CASE ValType( field->&cField ) = "C"
       IF Right( xVal, 1 ) = '"'
          xVal = hb_StrShrink( SubStr( xVal, 2 ) )   // kdyz jsou tak orezu krajni uvozovky
+      else
+         xVal = trim( xVal )    // kdyz jsou tak orezu krajni uvozovky
       ENDIF
-// xVal = hb_Translate( xVal, 'UTF8', zs_set( "cDbfEncoding" ) )  //melo by to delat nastaveni _SET_DB...
+     xVal = hb_Translate( xVal, hb_cdpselect(), zs_set('cDbfEncoding'))  //melo by to delat nastaveni _SET_DB...
    END CASE
    REPLA field->&cField WITH xVal
 
