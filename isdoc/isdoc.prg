@@ -79,21 +79,28 @@ FUNCTION main ( cISDOCFile, cISDOCEncoding )
 
    RETURN NIL
 
-FUNCTION EvalPath( hIn, sPath )
+   FUNCTION EvalPath( hIn, sPath )
 
    MEMVAR hOut
-   LOCAL hPath := "", cKey := SubStr( sPath, RAt( "/", sPath ) + 1 ) // s pouzitim posledniho klice, budu testovat existenci a pripadne vracet ""
+   LOCAL _ret, hPath := "", cKey := SubStr( sPath, RAt( "/", sPath ) + 1 ) // s pouzitim posledniho klice, budu testovat existenci a pripadne vracet ""
    PRIVA hOut := hb_HClone( hIn )
 
    sPath = Left( sPath, RAt( "/", sPath ) - 1 )  // zbytek mam v sKey
 
    AEval( hb_ATokens( sPath, "/" ), {| token | hPath += if( Empty( token ), "", "['" + token + "']" ) } )
 
-   IF !hb_HHasKey( &( 'hOut' + hPath ), cKey )
-      LOG 'Neexistuje klic:', cKey, 'v', 'hOut' + hPath
+   LOG "Testuji hb_HHasKey: hash=", 'hOut' + hPath, "cKey=", cKey
+   IF ValType( &( 'hOut' + hPath ) ) = "H"
+      IF !hb_HHasKey( &( 'hOut' + hPath ), cKey )
+         LOG 'Neexistuje klic:', cKey, 'v', 'hOut' + hPath
+      ENDIF
+      _ret = hb_HGetDef( &( 'hOut' + hPath ), cKey, '' )
+   ELSE
+      LOG 'Neni hash:', 'hOut' + hPath, "klic:", cKey, "je to", ValType( &( 'hOut' + hPath ) ), "hodnota:", hb_ValToExp( &( 'hOut' + hPath ) ), "vracim to"
+      _ret = &( 'hOut' + hPath )
    ENDIF
 
-   RETURN    hb_HGetDef( &( 'hOut' + hPath ), cKey, '' )
+   RETURN _ret
 // RETURN    &( 'hOut' + hPath )
 
 /*
